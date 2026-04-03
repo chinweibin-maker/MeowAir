@@ -3,242 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeowAir 喵准航空 | 全平台机票比价系统</title>
+    <meta name="referrer" content="no-referrer">
+    <title>MeowAir Ultra | 喵准全球智慧飞行指挥中心</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
     <style>
         :root {
-            --meow-orange: #ff9f43;
-            --meow-blue: #0984e3;
-            --meow-dark: #2d3436;
-            --meow-bg: #f5f6fa;
-            --glass: rgba(255, 255, 255, 0.9);
+            --m-orange: #ff9f43; --m-blue: #0984e3; --m-dark: #1e272e;
+            --m-glass: rgba(255, 255, 255, 0.95); --m-grad: linear-gradient(135deg, #0984e3, #6c5ce7);
         }
 
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--meow-bg); color: var(--meow-dark); margin: 0; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f0f2f5; margin: 0; color: var(--m-dark); }
         
-        /* 导航栏 */
-        nav { width: 100%; background: var(--white); padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); box-sizing: border-box; background: white;}
-        .logo { font-size: 24px; font-weight: 800; color: var(--meow-orange); display: flex; align-items: center; gap: 10px; }
-        .user-rank { font-size: 14px; background: var(--meow-blue); color: white; padding: 5px 12px; border-radius: 20px; }
-
-        /* 响应式网格布局 */
-        .container { width: 95%; max-width: 1200px; display: grid; grid-template-columns: 350px 1fr; gap: 20px; margin-top: 20px; padding-bottom: 50px; }
-
-        /* 卡片通用样式 */
-        .card { background: var(--glass); border-radius: 20px; padding: 20px; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07); border: 1px solid rgba(255, 255, 255, 0.18); margin-bottom: 20px; }
-
-        /* 搜索模块 */
-        .search-section h3 { margin-top: 0; color: var(--meow-blue); border-bottom: 2px solid var(--meow-orange); display: inline-block; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        label { font-size: 12px; font-weight: bold; margin-bottom: 5px; display: block; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: var(--meow-orange); outline: none; }
-        .btn-search { width: 100%; padding: 15px; background: var(--meow-orange); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-
-        /* 猫咪助手交互 */
-        .cat-assistant { background: #fff5e6; padding: 15px; border-radius: 15px; text-align: center; border: 1px dashed var(--meow-orange); }
-        .cat-gif { font-size: 40px; animation: bounce 2s infinite; }
-        #cat-bubble { font-size: 13px; color: #e67e22; font-style: italic; margin-top: 5px; }
-
-        /* 结果列表 */
-        .flight-item { 
-            display: grid; grid-template-columns: 120px 1fr 100px 120px; 
-            background: white; padding: 20px; border-radius: 15px; margin-bottom: 12px;
-            align-items: center; border: 1px solid transparent; transition: 0.3s;
+        /* 炫酷导航栏 */
+        nav { 
+            background: var(--m-dark); color: white; padding: 15px 50px; display: flex; 
+            justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000;
         }
-        .flight-item:hover { transform: translateX(10px); border-color: var(--meow-orange); }
-        .price { font-size: 24px; font-weight: bold; color: var(--meow-orange); }
-        .airline-logo { font-weight: bold; color: var(--meow-blue); }
-        .tag { font-size: 10px; background: #f1f2f6; padding: 4px 8px; border-radius: 5px; margin-right: 5px; }
+        .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; cursor: pointer; }
+        .logo span { color: var(--m-orange); }
+        .status-pill { background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 12px; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* 签证助手卡片 */
-        .visa-info { font-size: 13px; color: #555; background: #e3f2fd; padding: 10px; border-radius: 10px; margin-top: 10px; display: none; }
+        .container { max-width: 1400px; margin: 30px auto; display: grid; grid-template-columns: 380px 1fr; gap: 30px; padding: 0 20px; }
 
-        /* 图表高度 */
-        #chart-container { height: 250px; width: 100%; }
+        /* 卡片特效 */
+        .card { background: white; border-radius: 30px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--m-grad); }
 
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
-            nav { padding: 15px 20px; }
+        /* 搜索 UI */
+        .input-box { margin-bottom: 20px; }
+        label { font-size: 11px; font-weight: 800; color: #b2bec3; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        input { 
+            width: 100%; padding: 15px; border: 2px solid #f1f2f6; border-radius: 15px; 
+            font-size: 16px; transition: 0.3s; box-sizing: border-box;
         }
+        input:focus { border-color: var(--m-blue); box-shadow: 0 0 15px rgba(9, 132, 227, 0.1); outline: none; }
+
+        /* 极客控制台 */
+        .console { 
+            background: #2d3436; color: #00b894; font-family: 'Courier New', monospace; 
+            padding: 15px; border-radius: 15px; font-size: 11px; margin-top: 20px; height: 100px; overflow-y: auto;
+        }
+
+        /* 动态猫咪 */
+        .bot-zone { text-align: center; margin-top: 30px; background: #f9f9f9; padding: 25px; border-radius: 25px; border: 2px solid #eee; }
+        #meow-avatar { font-size: 60px; display: block; margin-bottom: 10px; cursor: pointer; transition: 0.5s; }
+        #meow-avatar:hover { transform: rotate(360deg) scale(1.2); }
+
+        /* 航班卡片 */
+        .flight-row { 
+            display: grid; grid-template-columns: 120px 1fr 150px 140px; 
+            background: white; padding: 25px; border-radius: 25px; margin-bottom: 15px;
+            align-items: center; transition: 0.4s; cursor: pointer; border: 2px solid transparent;
+        }
+        .flight-row:hover { transform: translateY(-5px); border-color: var(--m-orange); box-shadow: 0 15px 30px rgba(255,159,67,0.1); }
+        .airline { font-weight: 900; color: var(--m-blue); font-size: 18px; }
+        .price { font-size: 28px; font-weight: 900; color: var(--m-orange); }
+        .tag { background: #f1f2f6; padding: 5px 12px; border-radius: 8px; font-size: 10px; font-weight: bold; margin-right: 5px; }
+
+        /* 魔法按钮 */
+        .btn-wow { 
+            width: 100%; padding: 20px; background: var(--m-grad); color: white; border: none; 
+            border-radius: 20px; font-size: 18px; font-weight: 900; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.3); transition: 0.3s;
+        }
+        .btn-wow:active { transform: scale(0.95); }
+
+        /* 隐藏功能：进度条 */
+        .progress-bar { width: 0%; height: 4px; background: var(--m-orange); position: absolute; bottom: 0; left: 0; transition: 0.3s; }
+
+        @keyframes fly { from { left: -100px; } to { left: 100%; } }
+        #mini-plane { position: absolute; display: none; font-size: 24px; color: var(--m-blue); z-index: 10; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="logo"><i class="fas fa-cat"></i> MeowAir 喵准航空</div>
-    <div class="user-rank" id="user-rank">飞行等级：纸箱喵 Lv.1</div>
+    <div class="logo">MEOW<span>AIR</span> ULTRA</div>
+    <div class="status-pill" id="system-status"><i class="fas fa-circle" style="color:#00b894"></i> 卫星链路已连接</div>
 </nav>
 
+<div id="mini-plane"><i class="fas fa-plane"></i></div>
+
 <div class="container">
-    <div class="sidebar">
-        <div class="card search-section">
-            <h3><i class="fas fa-plane-departure"></i> 航班监控</h3>
-            <div class="input-group">
-                <label>出发城市</label>
+    <aside>
+        <div class="card">
+            <h3><i class="fas fa-satellite-dish"></i> 指挥中心</h3>
+            <div class="input-box">
+                <label>出发地枢纽</label>
                 <input type="text" id="fromCity" value="Kuala Lumpur (KUL)">
             </div>
-            <div class="input-group">
-                <label>目的城市</label>
-                <input type="text" id="toCity" value="Shanghai (PVG)" onchange="checkVisa()">
+            <div class="input-box">
+                <label>目标坐标</label>
+                <input type="text" id="toCity" value="Shanghai (PVG)">
             </div>
-            <div class="input-group">
-                <label>出发日期</label>
-                <input type="date" id="flightDate">
+            <div class="input-box">
+                <label>伏击预算 (RM)</label>
+                <input type="number" id="budget" value="800">
             </div>
-            <div class="input-group">
-                <label>降价伏击目标 (RM)</label>
-                <input type="number" id="alertPrice" value="800">
-            </div>
-            <button class="btn-search" onclick="runStalkerSearch()">开始全网伏击</button>
+            <button class="btn-wow" onclick="executeMission()">
+                <i class="fas fa-bolt"></i> 启动全网拦截
+            </button>
             
-            <div id="visaBox" class="visa-info">
-                <i class="fas fa-passport"></i> <strong>签证提醒：</strong>
-                <span>马来西亚护照前往中国：15天免签喵！</span>
+            <div class="console" id="log">
+                > System ready...<br>
+                > Awaiting operator commands...
             </div>
         </div>
 
-        <div class="card cat-assistant">
-            <div class="cat-gif" id="cat-icon">🐱</div>
-            <div id="cat-bubble">“还没开始搜索喵...快输入目的地吧！”</div>
-            <button onclick="feedCat()" style="margin-top:10px; font-size:11px; background:none; border:1px solid #ff9f43; cursor:pointer; border-radius:5px;">🥩 投喂猫粮</button>
+        <div class="bot-zone">
+            <span id="meow-avatar" onclick="meowClick()">🐱</span>
+            <div id="bubble" style="font-size: 13px; font-style: italic; color: #636e72;">“点击我，或者下达搜索指令喵！”</div>
+            <div style="margin-top:15px; display:flex; justify-content:center; gap:10px;">
+                <div class="status-pill" style="color:var(--m-orange)">EXP: <span id="exp">0</span></div>
+                <div class="status-pill" style="color:var(--m-blue)">LV: <span id="lv">1</span></div>
+            </div>
         </div>
-    </div>
+    </aside>
 
-    <div class="main-panel">
-        <div class="card">
-            <h3 style="margin-top:0;"><i class="fas fa-chart-line"></i> 价格走势预警</h3>
-            <div id="chart-container">
-                <canvas id="priceChart"></canvas>
+    <main>
+        <div class="card" style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3><i class="fas fa-chart-line"></i> 价格大数据预测</h3>
+                <span id="ai-advice" class="tag" style="background:#e3f2fd; color:#0984e3; padding:8px 15px;">AI 评估中...</span>
+            </div>
+            <div style="height:250px;">
+                <canvas id="ultraChart"></canvas>
             </div>
         </div>
 
-        <div id="results-area">
-            <div style="text-align:center; color:#ccc; padding:100px;">
-                <i class="fas fa-search" style="font-size: 50px;"></i>
-                <p>正在等待您的比价指令...</p>
+        <div id="flight-results">
+            <div style="text-align:center; padding:100px; color:#b2bec3;">
+                <i class="fas fa-radar fa-spin" style="font-size:50px; margin-bottom:20px;"></i>
+                <p>正在扫描全球 500+ 航司实时数据...</p>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
 <script>
-    let priceChart;
+    let chart;
     let exp = 0;
     const meowAudio = new Audio("https://actions.google.com/sounds/v1/animals/domestic_cat_meow.ogg");
 
-    // 1. 初始化
+    // 1. 系统初始化
     window.onload = () => {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('flightDate').value = today;
-        initChart();
-        console.log("%c MeowAir System Initialized... %c 喵星人已就绪", "color:white; background:#0984e3; padding:5px;", "color:#ff9f43;");
-    }
+        initUltraChart();
+        addLog("MeowAir Ultra Core v4.0 Loaded.");
+        addLog("Local server: localhost:8080 active.");
+    };
 
-    // 2. 模拟全网比价搜索
-    function runStalkerSearch() {
-        const results = document.getElementById('results-area');
-        const bubble = document.getElementById('cat-bubble');
-        const target = document.getElementById('alertPrice').value;
-
-        bubble.innerText = "正在潜入 AirAsia, MAS, Trip.com 服务器抓取数据喵...";
-        results.innerHTML = `<div style="text-align:center; padding:50px;"><i class="fas fa-spinner fa-spin" style="font-size:30px; color:#ff9f43;"></i><p>正在对比全平台价格...</p></div>`;
+    // 2. 核心搜索任务 (Wow 效果)
+    function executeMission() {
+        const results = document.getElementById('flight-results');
+        const plane = document.getElementById('mini-plane');
+        const budget = document.getElementById('budget').value;
+        
+        // 视觉效果：飞机横飞
+        plane.style.display = "block";
+        plane.style.top = "50%";
+        plane.style.animation = "fly 2s linear forwards";
+        
+        addLog("Initiating Global GDS scan...");
+        addLog("Intercepting AirAsia API packets...");
+        addLog("Bypassing Trip.com anti-bot...");
 
         setTimeout(() => {
-            const flights = [
-                { airline: "AirAsia", price: 820, time: "08:30 - 14:00", tags: ["廉价航空", "不含行李"] },
-                { airline: "Trip.com", price: 788, time: "10:20 - 15:50", tags: ["比价冠军", "含20kg托运"] },
-                { airline: "MAS", price: 1150, time: "09:00 - 14:30", tags: ["全服务", "含餐食"] },
-                { airline: "Scoot", price: 810, time: "13:00 - 18:30", tags: ["新加坡转机"] }
-            ];
-
-            flights.sort((a,b) => a.price - b.price);
+            plane.style.display = "none";
+            plane.style.animation = "";
+            renderUltraFlights();
+            updateChartData([850, 920, 780, 799]);
             
-            results.innerHTML = flights.map(f => `
-                <div class="flight-item">
-                    <div class="airline-logo">${f.airline}</div>
-                    <div>
-                        <strong>${f.time}</strong><br>
-                        ${f.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-                    </div>
-                    <div class="price">RM ${f.price}</div>
-                    <button onclick="bookFlight()" style="background:var(--meow-blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">立即抢票</button>
-                </div>
-            `).join('');
-
-            bubble.innerText = "“喵呜！帮你找好了！Trip.com 价格最香，快下单吧！”";
+            // AI 建议
+            document.getElementById('ai-advice').innerHTML = "<i class='fas fa-check-circle'></i> 建议购买：当前处于 30 天内价格波谷";
             
-            // 触发低价伏击报警
-            if(flights[0].price <= target) {
+            exp += 35;
+            updateStats();
+            
+            if(799 <= budget) {
                 meowAudio.play();
-                document.getElementById('cat-icon').innerText = "🙀";
-                alert("😺 喵准成功！发现低于目标价的机票！");
+                document.getElementById('meow-avatar').innerText = "😻";
+                addLog("CRITICAL: Price match found! RM 799");
             }
-
-            exp += 20;
-            updateRank();
-            updateChart([900, 1100, 850, 788]); // 模拟价格更新
-        }, 1500);
+        }, 2000);
     }
 
-    // 3. 价格走势图
-    function initChart() {
-        const ctx = document.getElementById('priceChart').getContext('2d');
-        priceChart = new Chart(ctx, {
+    // 3. 渲染航班 (高级卡片)
+    function renderUltraFlights() {
+        const container = document.getElementById('flight-results');
+        const data = [
+            { airline: "Trip.com", price: 799, time: "10:00 - 15:30", tags: ["比价王", "含20kg"], icon: "fa-crown" },
+            { airline: "AirAsia", price: 820, time: "08:30 - 14:00", tags: ["低成本", "无行李"], icon: "fa-bolt" },
+            { airline: "MAS", price: 1150, time: "09:00 - 14:30", tags: ["五星航司", "含餐食"], icon: "fa-star" }
+        ];
+
+        container.innerHTML = data.map(f => `
+            <div class="flight-row animate__animated animate__zoomIn">
+                <div class="airline"><i class="fas ${f.icon}"></i> ${f.airline}</div>
+                <div>
+                    <div style="font-size:12px; color:#999; margin-bottom:5px;">飞行时间</div>
+                    <div class="flight-time">${f.time}</div>
+                    <div style="margin-top:8px;">
+                        ${f.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="price">RM ${f.price}</div>
+                <button class="btn-wow" style="padding:10px; font-size:14px;" onclick="window.open('https://www.trip.com')">
+                    立即秒杀
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // 4. 图表逻辑
+    function initUltraChart() {
+        const ctx = document.getElementById('ultraChart').getContext('2d');
+        chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['4.27', '4.29', '5.01', '今天'],
+                labels: ['周一', '周二', '周三', '今天'],
                 datasets: [{
-                    label: '历史最低价走势 (RM)',
-                    data: [1000, 950, 1200, 1100],
+                    data: [1000, 950, 1200, 799],
                     borderColor: '#ff9f43',
-                    backgroundColor: 'rgba(255, 159, 67, 0.1)',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#fff',
+                    pointRadius: 6,
                     fill: true,
+                    backgroundColor: 'rgba(255, 159, 67, 0.1)',
                     tension: 0.4
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { grid: { display: false } }, x: { grid: { display: false } } }
+            }
         });
     }
 
-    function updateChart(newData) {
-        priceChart.data.datasets[0].data = newData;
-        priceChart.update();
+    function updateChartData(data) {
+        chart.data.datasets[0].data = data;
+        chart.update();
     }
 
-    // 4. 签证检查助手 (模拟 BIS 逻辑)
-    function checkVisa() {
-        const to = document.getElementById('toCity').value.toLowerCase();
-        const visaBox = document.getElementById('visaBox');
-        if(to.includes('shanghai') || to.includes('china') || to.includes('上海') || to.includes('中国')) {
-            visaBox.style.display = 'block';
-        } else {
-            visaBox.style.display = 'none';
-        }
+    // 5. 辅助功能
+    function addLog(txt) {
+        const log = document.getElementById('log');
+        log.innerHTML += `> ${txt}<br>`;
+        log.scrollTop = log.scrollHeight;
     }
 
-    // 5. 等级与投喂系统
-    function updateRank() {
-        const rank = document.getElementById('user-rank');
-        const lv = Math.floor(exp / 100) + 1;
-        const titles = ["", "纸箱喵", "波音喵", "环球领航喵"];
-        rank.innerText = `飞行等级：${titles[lv] || "宇宙飞行喵"} Lv.${lv}`;
+    function meowClick() {
+        meowAudio.play();
+        document.getElementById('bubble').innerText = "“需要我帮你拦截上海的低价票吗？喵！”";
+        document.getElementById('meow-avatar').innerText = "😺";
+        setTimeout(() => document.getElementById('meow-avatar').innerText = "🐱", 1000);
     }
 
-    function feedCat() {
-        exp += 10;
-        updateRank();
-        document.getElementById('cat-bubble').innerText = "“谢谢主人！我盯着更卖力了喵！”";
-        document.getElementById('cat-icon').innerText = "😻";
-        setTimeout(() => document.getElementById('cat-icon').innerText = "🐱", 2000);
-    }
-
-    function bookFlight() {
-        alert("正在为您加密跳转至航司官网喵...");
+    function updateStats() {
+        document.getElementById('exp').innerText = exp;
+        document.getElementById('lv').innerText = Math.floor(exp / 100) + 1;
     }
 </script>
 
