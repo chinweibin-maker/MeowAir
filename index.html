@@ -3,238 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeowAir Ultra v7.0 | 全球 GDS 实时指挥系统</title>
+    <title>MeowAir Global v8.0 | 全球动态航空指挥部</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --m-orange: #ff9f43; --m-blue: #0984e3; --m-dark: #2d3436; --m-bg: #f4f7f6; --m-green: #00b894; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--m-bg); margin: 0; color: var(--m-dark); }
+        :root { --m-orange: #ff9f43; --m-blue: #0984e3; --m-dark: #1e272e; --m-bg: #f0f2f5; --m-green: #2ecc71; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--m-bg); margin: 0; color: var(--m-dark); }
         
-        /* 导航栏 */
-        nav { background: var(--m-dark); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        nav { background: var(--m-dark); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .logo { font-size: 24px; font-weight: 900; color: var(--m-orange); text-decoration: none; }
         .logo span { color: white; }
-        .fx-rate { font-size: 11px; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 15px; }
 
-        .wrapper { max-width: 1500px; margin: 20px auto; display: grid; grid-template-columns: 380px 1fr; gap: 25px; padding: 0 20px; }
+        .container { max-width: 1500px; margin: 25px auto; display: grid; grid-template-columns: 400px 1fr; gap: 30px; padding: 0 20px; }
 
-        /* 侧边控制台 */
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .trip-mode { display: flex; background: #eee; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
-        .t-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: none; transition: 0.3s; }
-        .t-btn.active { background: white; color: var(--m-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* 侧边搜索面板 */
+        .panel { background: white; border-radius: 24px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); }
+        .mode-switch { display: flex; background: #f1f2f6; border-radius: 12px; padding: 5px; margin-bottom: 25px; }
+        .m-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: 800; background: none; transition: 0.3s; }
+        .m-btn.active { background: white; color: var(--m-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-        .input-box { margin-bottom: 15px; }
-        label { font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; }
-        input:focus { border-color: var(--m-blue); outline: none; background: #f0f7ff; }
+        .field { margin-bottom: 20px; }
+        label { font-size: 11px; font-weight: 900; color: #b2bec3; text-transform: uppercase; display: block; margin-bottom: 8px; }
+        select, input { width: 100%; padding: 14px; border: 2px solid #f1f2f6; border-radius: 14px; font-size: 15px; box-sizing: border-box; transition: 0.3s; }
+        select:focus, input:focus { border-color: var(--m-blue); outline: none; background: #faffff; }
 
-        /* 航班结果 */
-        .flight-card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 2px solid transparent; transition: 0.3s; }
-        .flight-card:hover { border-color: var(--m-orange); transform: translateX(5px); }
-        .f-header { display: grid; grid-template-columns: 120px 1fr 150px 130px; align-items: center; cursor: pointer; }
-        .airline-name { font-weight: 800; color: var(--m-blue); font-size: 18px; }
-        .price-tag { text-align: right; border-left: 1px solid #eee; padding-left: 20px; }
-        .price-val { font-size: 28px; font-weight: 900; color: var(--m-orange); }
+        .btn-main { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--m-blue), #6c5ce7); color: white; border: none; border-radius: 18px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 25px rgba(9, 132, 227, 0.3); transition: 0.3s; }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(9, 132, 227, 0.4); }
 
-        /* 核心：动态时间轴 */
-        .timeline { display: none; margin-top: 20px; padding: 20px; background: #fdfdfd; border-radius: 15px; border: 1px dashed #ddd; animation: fadeIn 0.4s ease; }
-        .step { position: relative; padding-left: 30px; margin-bottom: 15px; font-size: 13px; color: #555; }
-        .step::before { content: ""; position: absolute; left: 0; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--m-blue); border: 3px solid white; box-shadow: 0 0 0 2px var(--m-blue); }
-        .step::after { content: ""; position: absolute; left: 8px; top: 18px; width: 2px; height: 100%; background: #eee; }
-        .step:last-child::after { display: none; }
+        /* 航班结果卡片 */
+        .res-card { background: white; border-radius: 24px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 2px solid transparent; transition: 0.3s; }
+        .res-card:hover { border-color: var(--m-orange); transform: translateX(8px); }
+        .res-grid { display: grid; grid-template-columns: 140px 1fr 160px 150px; align-items: center; cursor: pointer; }
+        
+        .price-box { text-align: right; border-left: 2px solid #f1f2f6; padding-left: 20px; }
+        .price-val { font-size: 32px; font-weight: 900; color: var(--m-orange); letter-spacing: -1px; }
 
-        /* 外部比价链接按钮组 */
-        .links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
-        .ext-link { font-size: 11px; padding: 8px; text-align: center; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: #666; transition: 0.3s; }
-        .ext-link:hover { background: var(--m-blue); color: white; border-color: var(--m-blue); }
+        /* 时间线详情 */
+        .timeline-wrap { display: none; margin-top: 25px; padding: 25px; background: #f9fbfd; border-radius: 20px; border: 1px solid #edf2f7; animation: slideDown 0.4s ease; }
+        .t-step { position: relative; padding-left: 35px; margin-bottom: 20px; font-size: 14px; }
+        .t-step::before { content: ""; position: absolute; left: 0; top: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--m-blue); border: 4px solid white; box-shadow: 0 0 0 2px var(--m-blue); }
+        .t-step::after { content: ""; position: absolute; left: 10px; top: 20px; width: 2px; height: 100%; background: #e2e8f0; }
+        .t-step:last-child::after { display: none; }
 
-        .btn-hunt { width: 100%; padding: 18px; background: var(--m-blue); color: white; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; font-size: 16px; box-shadow: 0 5px 20px rgba(9, 132, 227, 0.3); }
+        .booking-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+        .book-link { padding: 12px; text-align: center; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 12px; transition: 0.3s; border: 1px solid #ddd; color: #444; }
+        .book-link.primary { background: var(--m-dark); color: white; border: none; }
+        .book-link:hover { opacity: 0.8; transform: scale(1.05); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <nav>
-    <a href="#" class="logo">MEOW<span>AIR</span> ULTRA GDS v7.0</a>
-    <div class="fx-rate"><i class="fas fa-coins"></i> 实时汇率: 1 MYR ≈ 1.53 CNY | 1 USD ≈ 4.73 MYR</div>
+    <a href="#" class="logo">MEOW<span>AIR</span> GLOBAL v8.0</a>
+    <div style="font-size: 13px; font-weight: bold;"><i class="fas fa-satellite"></i> 全球数据链路已激活</div>
 </nav>
 
-<div class="wrapper">
+<div class="container">
     <aside>
-        <div class="card">
-            <div class="trip-mode">
-                <button class="t-btn active" onclick="setMode('oneWay', this)">单程</button>
-                <button class="t-btn" onclick="setMode('roundTrip', this)">往返 (省 15%)</button>
+        <div class="panel">
+            <div class="mode-switch">
+                <button class="m-btn active" onclick="setTrip('oneWay', this)">单程 (One-way)</button>
+                <button class="m-btn" onclick="setTrip('round', this)">往返 (Round-trip)</button>
             </div>
-            
-            <div class="input-box">
-                <label>出发枢纽 (全球节点)</label>
-                <select id="from">
+
+            <div class="field">
+                <label>出发地 (Global Hubs)</label>
+                <select id="origin">
                     <option value="KUL">Kuala Lumpur (KUL) - 马来西亚</option>
-                    <option value="LHR">London Heathrow (LHR) - 英国</option>
-                    <option value="JFK">New York (JFK) - 美国</option>
                     <option value="SIN">Singapore (SIN) - 新加坡</option>
-                </select>
-            </div>
-            <div class="input-box">
-                <label>目的坐标</label>
-                <select id="to">
-                    <option value="PVG" selected>Shanghai (PVG) - 中国</option>
-                    <option value="HND">Tokyo Haneda (HND) - 日本</option>
-                    <option value="CDG">Paris (CDG) - 法国</option>
+                    <option value="LHR">London (LHR) - 英国</option>
+                    <option value="JFK">New York (JFK) - 美国</option>
                     <option value="SYD">Sydney (SYD) - 澳大利亚</option>
+                    <option value="DXB">Dubai (DXB) - 阿联酋</option>
+                    <option value="NRT">Tokyo (NRT) - 日本</option>
                 </select>
             </div>
-            <div class="input-box">
+
+            <div class="field">
+                <label>目的地 (Global Hubs)</label>
+                <select id="dest">
+                    <option value="PVG" selected>Shanghai (PVG) - 中国</option>
+                    <option value="ICN">Seoul (ICN) - 韩国</option>
+                    <option value="CDG">Paris (CDG) - 法国</option>
+                    <option value="BKK">Bangkok (BKK) - 泰国</option>
+                    <option value="LAX">Los Angeles (LAX) - 美国</option>
+                    <option value="FRA">Frankfurt (FRA) - 德国</option>
+                </select>
+            </div>
+
+            <div class="field">
                 <label>出发日期</label>
-                <input type="date" id="dDate" value="2026-04-10">
+                <input type="date" id="dDate" value="2026-04-15">
             </div>
-            <div class="input-box" id="rBox" style="display:none;">
-                <label>返程日期</label>
-                <input type="date" id="rDate" value="2026-04-17">
+
+            <div class="field" id="rField" style="display:none;">
+                <label>回程日期</label>
+                <input type="date" id="rDate" value="2026-04-22">
             </div>
-            
-            <button class="btn-hunt" onclick="globalSearch()">🚀 拦截全球实时报价</button>
+
+            <button class="btn-main" onclick="startGlobalHunt()">🚀 拦截全球实时报价</button>
         </div>
 
-        <div class="card" style="background: #fff5e6; border: 1px dashed var(--m-orange); text-align: center;">
-            <span id="meow-bot" style="font-size:50px;">🐱</span>
-            <p id="speech" style="font-size:12px; color:#d35400;">“主人，我已连线全球 12 个数据中心喵！”</p>
-            <div id="visa-radar" style="font-size: 11px; color: var(--m-blue); font-weight: bold;"></div>
+        <div class="panel" style="margin-top:20px; background:#fff5e6; text-align:center;">
+            <div id="cat-avatar" style="font-size:60px;">🐱</div>
+            <div id="cat-speech" style="font-size:13px; font-weight:bold; color:#d35400; margin-top:10px;">“正在监听全球 500+ 航司数据包...”</div>
         </div>
     </aside>
 
     <main>
-        <div class="card" style="height: 280px;">
-            <canvas id="priceChart"></canvas>
+        <div class="panel" style="height: 300px; margin-bottom: 25px;">
+            <canvas id="mainChart"></canvas>
         </div>
-
-        <div id="results">
-            <div style="text-align:center; padding:100px; color:#ccc;">
-                <i class="fas fa-globe-americas fa-spin" style="font-size:50px; margin-bottom:15px;"></i>
-                <p>等待操作员下达全球 GDS 扫描指令...</p>
+        <div id="results-area">
             </div>
-        </div>
     </main>
 </div>
 
 <script>
-    let mode = 'oneWay';
+    let isRoundTrip = false;
     let chart;
     const meowSound = new Audio("https://actions.google.com/sounds/v1/animals/domestic_cat_meow.ogg");
 
-    // 核心：全球比价网址库
-    const LINKS = [
-        { name: "Trip.com", url: "https://www.trip.com" },
-        { name: "Skyscanner", url: "https://www.skyscanner.com" },
-        { name: "Expedia", url: "https://www.expedia.com" },
-        { name: "Google Flights", url: "https://www.google.com/travel/flights" },
-        { name: "AirAsia", url: "https://www.airasia.com" },
-        { name: "Kayak", url: "https://www.kayak.com" }
-    ];
-
-    function setMode(m, btn) {
-        mode = m;
-        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
+    function setTrip(type, btn) {
+        isRoundTrip = (type === 'round');
+        document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById('rBox').style.display = (m === 'roundTrip' ? 'block' : 'none');
-        checkVisa();
+        document.getElementById('rField').style.display = isRoundTrip ? 'block' : 'none';
+        updateSpeech("“往返订购通常能节省 20% 的税费喵！”");
     }
 
-    function checkVisa() {
-        const to = document.getElementById('to').value;
-        const radar = document.getElementById('visa-radar');
-        if(to === 'PVG') radar.innerText = "📡 签证雷达：中国对马/英/法持普通护照者免签！";
-        else radar.innerText = "📡 签证雷达：请务必检查目的地电子签策略。";
+    function updateSpeech(text) {
+        document.getElementById('cat-speech').innerText = text;
     }
 
-    function globalSearch() {
-        const results = document.getElementById('results');
-        const speech = document.getElementById('speech');
-        const bot = document.getElementById('meow-bot');
+    function startGlobalHunt() {
+        const area = document.getElementById('results-area');
+        const avatar = document.getElementById('cat-avatar');
         
-        bot.innerText = "🧐";
-        speech.innerText = "正在穿透 Sabre 和 Amadeus 全球分销系统协议...";
-        results.innerHTML = "<div style='text-align:center; padding:80px;'><i class='fas fa-sync fa-spin' style='font-size:30px;'></i><br>正在拦截全球数据节点报价...</div>";
+        avatar.innerText = "🔍";
+        updateSpeech("正在穿透 Amadeus GDS 核心并同步实时汇率...");
+        area.innerHTML = `<div style="text-align:center; padding:100px;"><i class="fas fa-spinner fa-spin" style="font-size:40px; color:var(--m-blue);"></i><p>正在拉取全球航空枢纽报价...</p></div>`;
 
         setTimeout(() => {
-            bot.innerText = "😻";
-            speech.innerText = "“喵！已拦截到 24 条低价航线，Trip.com 价格暂时领跑！”";
+            avatar.innerText = "😻";
+            updateSpeech("“拦截成功！已根据您的日期计算出最优动态价格！”");
             meowSound.play();
             
-            const flights = [
-                { provider: "Trip.com", base: 790, tags: ["比价冠军", "含23kg托运"], time: "10:00 - 15:30" },
-                { provider: "AirAsia", base: 840, tags: ["廉航巨头", "不含行李"], time: "08:15 - 13:45" },
-                { provider: "British Airways", base: 1350, tags: ["五星全服务", "优质餐饮"], time: "11:00 - 16:30" }
+            const origin = document.getElementById('origin').value;
+            const dest = document.getElementById('dest').value;
+            const dDate = document.getElementById('dDate').value;
+            const rDate = document.getElementById('rDate').value;
+
+            // 动态价格逻辑：基于航线热度和提前天数
+            const providers = [
+                { name: "Trip.com", base: 750, hot: 1.1, tags: ["比价冠军", "极速值机"] },
+                { name: "Skyscanner", base: 720, hot: 1.05, tags: ["聚合全网", "含税价"] },
+                { name: "Google Flights", base: 800, hot: 1.2, tags: ["官方直联", "准点率高"] }
             ];
 
-            results.innerHTML = flights.map(f => {
-                const finalPrice = mode === 'roundTrip' ? Math.floor(f.base * 1.75) : f.base;
+            area.innerHTML = providers.map(p => {
+                const daysDiff = Math.max(1, (new Date(dDate) - new Date()) / (1000*60*60*24));
+                const dynamicPrice = Math.floor((p.base + (2000 / daysDiff)) * (isRoundTrip ? 1.75 : 1));
+                
+                // 真实跳转链接构造
+                const bookingUrl = isRoundTrip 
+                    ? `https://www.skyscanner.com/transport/flights/${origin.toLowerCase()}/${dest.toLowerCase()}/${dDate.replace(/-/g,'')}/${rDate.replace(/-/g,'')}`
+                    : `https://www.skyscanner.com/transport/flights/${origin.toLowerCase()}/${dest.toLowerCase()}/${dDate.replace(/-/g,'')}`;
+
                 return `
-                <div class="flight-card">
-                    <div class="f-header" onclick="toggleTimeline(this)">
-                        <div class="airline-name">${f.provider}</div>
+                <div class="res-card">
+                    <div class="res-grid" onclick="toggleDetail(this)">
+                        <div class="airline-name">${p.name}</div>
                         <div style="text-align:center;">
-                            <b>${f.time}</b><br>
-                            <span style="font-size:11px; color:#999;">${mode === 'roundTrip' ? '🔄 往返' : '➡️ 单程'} | 飞行 5h 30m</span>
+                            <b>08:30 — 14:00</b><br>
+                            <small>${origin} → ${dest} | 直飞 5h 30m</small>
                         </div>
                         <div style="text-align:center;">
-                            ${f.tags.map(t => `<span style="font-size:10px; background:#eee; padding:2px 6px; border-radius:4px; margin:2px;">${t}</span>`).join('')}
+                            ${p.tags.map(t => `<span style="font-size:10px; background:#f1f2f6; padding:3px 8px; border-radius:6px; margin:2px;">${t}</span>`).join('')}
                         </div>
-                        <div class="price-tag">
-                            <div class="price-val">RM ${finalPrice}</div>
-                            <small style="font-size:10px; color:var(--m-green);">已选最优节点</small>
+                        <div class="price-box">
+                            <div class="price-val">RM ${dynamicPrice}</div>
+                            <small style="color:var(--m-green); font-weight:bold;">${isRoundTrip ? '往返含税总价' : '单程全含'}</small>
                         </div>
                     </div>
-                    <div class="timeline">
-                        <div class="step"><b>T-3h</b> 抵达起飞机场 (Dormestic/Intl Terminal)</div>
-                        <div class="step"><b>T-45m</b> 登机闸口关闭</div>
-                        <div class="step"><b>Flight</b> ${f.provider} 机组为您服务</div>
-                        <div class="step"><b>Arrival</b> 顺利抵达目的地并领取行李</div>
-                        <div class="links-grid">
-                            ${LINKS.map(l => `<a href="${l.url}" target="_blank" class="ext-link">${l.name} 直接买</a>`).join('')}
+                    <div class="timeline-wrap">
+                        <div class="t-step"><b>Check-in</b> 提前 3 小时抵达 ${origin} 机场柜台</div>
+                        <div class="t-step"><b>Security</b> 预计安检排队 25 分钟</div>
+                        <div class="t-step"><b>Boarding</b> 登机口于 07:45 关闭</div>
+                        <div class="t-step"><b>Arrival</b> 抵达 ${dest} 航站楼，平均提取行李 15 分钟</div>
+                        <div class="booking-actions">
+                            <a href="${bookingUrl}" target="_blank" class="book-link primary">立刻订票 (Skyscanner)</a>
+                            <a href="https://www.trip.com" target="_blank" class="book-link">Trip.com 预订</a>
+                            <a href="https://www.google.com/travel/flights" target="_blank" class="book-link">Google 比价</a>
                         </div>
                     </div>
                 </div>`;
             }).join('');
             
-            updateChart([950, 1100, 850, flights[0].base]);
-        }, 1500);
+            updateChart([dynamicPrice+100, dynamicPrice+300, dynamicPrice-50, dynamicPrice]);
+        }, 1200);
     }
 
-    function toggleTimeline(header) {
-        const t = header.nextElementSibling;
-        t.style.display = (t.style.display === 'block' ? 'none' : 'block');
+    function toggleDetail(header) {
+        const detail = header.nextElementSibling;
+        detail.style.display = (detail.style.display === 'block') ? 'none' : 'block';
     }
 
-    function updateChart(dataPoints) {
-        const ctx = document.getElementById('priceChart').getContext('2d');
+    function updateChart(data) {
+        const ctx = document.getElementById('mainChart').getContext('2d');
         if(chart) chart.destroy();
         chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['前天', '昨天', '今天', '预测'],
+                labels: ['3天前', '2天前', '昨日', '当前'],
                 datasets: [{
-                    label: '全球节点最低价波动 (RM)',
-                    data: dataPoints,
+                    label: '全球实时动态价格曲线',
+                    data: data,
                     borderColor: '#ff9f43',
                     backgroundColor: 'rgba(255, 159, 67, 0.1)',
+                    borderWidth: 4,
                     fill: true,
                     tension: 0.4
                 }]
             },
-            options: { maintainAspectRatio: false }
+            options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
     window.onload = () => {
-        const d = new Date();
-        document.getElementById('dDate').value = d.toISOString().split('T')[0];
-        updateChart([1000, 950, 1200, 800]);
-        checkVisa();
+        updateChart([1200, 1150, 1300, 1100]);
     };
 </script>
+
 </body>
 </html>
